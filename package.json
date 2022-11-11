@@ -2,6 +2,13 @@
   "name": "react-native-simboot",
   "version": "0.1.0",
   "description": "A script to spin up any simulator or device with your selected configuration.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/breezertwo/react-native-simboot"
+  },
+  "scripts": {
+    "release": "release-it"
+  },
   "bin": {
     "start-ios": "bin/ios.js",
     "start-andoid": "bin/andoid.js"
@@ -12,6 +19,25 @@
     "enquirer": "^2.3.6"
   },
   "devDependencies": {
-    "eslint": "^8.27.0"
+    "@release-it/conventional-changelog": "^5.1.1",
+    "eslint": "^8.27.0",
+    "release-it": "^15.5.0"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release v${version}",
+      "tagName": "${version}"
+    },
+    "npm": {
+      "publish": false
+    },
+    "github": {
+      "release": true
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "angular"
+      }
+    }
   }
 }
