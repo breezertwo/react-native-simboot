@@ -1,17 +1,17 @@
 {
   "name": "react-native-simboot",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A script to spin up any simulator or device with your selected configuration.",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "bin": {
-    "start-ios": "bin/simboot.js"
+    "start-ios": "bin/ios.js",
+    "start-andoid": "bin/andoid.js"
   },
   "author": "breezertwo",
   "license": "ISC",
   "dependencies": {
-    "enquirer": "^2.3.6",
-    "shelljs": "^0.8.5"
+    "enquirer": "^2.3.6"
+  },
+  "devDependencies": {
+    "eslint": "^8.27.0"
   }
 }

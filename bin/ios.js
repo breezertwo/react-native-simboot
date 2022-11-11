@@ -1,16 +1,24 @@
 #! /usr/bin/env node
-var shell = require('shelljs');
-var fs = require('fs');
+const util = require('node:util');
+const process = require('node:process');
+const exec = util.promisify(require('node:child_process').exec);
+const fs = require('fs');
 const { Select } = require('enquirer');
 
+const errorFn = (method, msg) => {
+  console.log(method);
+  console.log(msg);
+  process.exit(1);
+}
+
 const runIOS = async () => {
-  const deviceListRaw = shell.exec('xcrun simctl list --json devices available', { silent: true });
-  if (deviceListRaw.stderr.length > 0) return
-  const deviceList = JSON.parse(deviceListRaw.stdout).devices
+  const { stdout: deviceListRaw, error: listError } = await exec('xcrun simctl list --json devices available');
+  if (listError) return errorFn("[ERROR]: xcrun simctl list --json devices available", listError);
+  const deviceList = JSON.parse(deviceListRaw).devices
   
   const readableDeviceList = []
 
-  for (key in deviceList) {
+  for (const key in deviceList) {
     if (key.indexOf("iOS") != -1) {
         const subList = deviceList[key]
         if (Array.isArray(subList) && subList.length > 0) {
@@ -35,9 +43,9 @@ const runIOS = async () => {
     .map((item) => item.name)
     .filter(item => item.indexOf('xcodeproj') !== -1)[0]
 
-  const projectRaw = shell.exec(`xcodebuild -list -project ios/${xcodeproj} -json`, { silent: true });
-  if (projectRaw.stderr.length > 0) return
-  const configurations = JSON.parse(projectRaw.stdout).project.configurations
+  const { stdout: projectRaw, error: projectError } = await exec(`xcodebuild -list -project ios/${xcodeproj} -json`);
+  if (projectError) return errorFn("[ERROR]: getting project info", projectError)
+  const configurations = JSON.parse(projectRaw).project.configurations
   
   const promptConfig = new Select({
       name: 'config',
@@ -47,8 +55,17 @@ const runIOS = async () => {
   
   const udid = await prompt.run()
   const configuration = await  promptConfig.run()
-  
-  shell.exec(`react-native run-ios --udid ${udid} --configuration ${configuration}"`)
+
+  let timeElapsed = 0;
+  const timer = setInterval(() => process.stdout.write(`ReactNative build is running... ${++timeElapsed} seconds elapsed\r`), 1000);
+
+  const { error } = await exec(`npx react-native run-ios --udid ${udid} --configuration "${configuration}"`);
+
+  clearInterval(timer);
+  if (error) return errorFn("[ERROR]: npx react-native run-ios", error);
+
+  console.log('\rReactNative build is running... done!');
+  process.exit(0);
 }
 
 runIOS()
