@@ -7,7 +7,7 @@
     "url": "https://github.com/breezertwo/react-native-simboot"
   },
   "scripts": {
-    "release": "release-it"
+    "release": "dotenv release-it --"
   },
   "bin": {
     "start-ios": "bin/ios.js",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^5.1.1",
+    "dotenv-cli": "^5.1.0",
     "eslint": "^8.27.0",
     "release-it": "^15.5.0"
   },
