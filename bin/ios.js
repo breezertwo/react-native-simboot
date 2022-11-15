@@ -23,8 +23,8 @@ const runIOS = async () => {
         if (key.indexOf("iOS") != -1) {
             const subList = deviceList[key]
             if (Array.isArray(subList) && subList.length > 0) {
-              for (const e of subList) {
-                readableDeviceList.push({ name: e.name, value: e.udid})
+              for (const device of subList) {
+                readableDeviceList.push({ name: device.name, udid: device.udid})
               }
             }
       
@@ -42,7 +42,7 @@ const runIOS = async () => {
     message: 'Pick a device to run the app:',
     choices: readableDeviceList,
     result(value) {
-      return this.choices.find(choice => choice.name === value).value;
+      return this.choices.find(choice => choice.name === value).udid;
     }
   });
 
@@ -76,7 +76,7 @@ const runIOS = async () => {
   const timer = setInterval(() => process.stdout.write(`ReactNative build is running... ${++timeElapsed} seconds elapsed\r`), 1000);
 
   try {
-    await exec(`npx react-native run-ios --udid ${udid} --configuration "${configuration}"`);
+    await exec(`npx react-native run-ios --udid ${udid} --configuration "${configuration}" ${process.argv.slice(2).join(' ')}`);
     console.log('\rReactNative build is running... done!');
     process.exit(0);
   } catch (error) {
