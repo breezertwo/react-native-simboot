@@ -75,6 +75,6 @@ ReactNative build is running... 6 seconds elapsed
 
 #### Roadmap
 
-- add config to be able to add own paths and settings
+- add config to be able to add own paths, settings and device order
 - add option to differ between iOS versions
 - add script for android support
