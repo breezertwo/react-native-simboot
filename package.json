@@ -4,7 +4,7 @@
   "description": "A script to spin up any simulator or device with your selected configuration.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/breezertwo/react-native-simboot"
+    "url": "https://github.com/breezertwo/react-native-simboot.git"
   },
   "scripts": {
     "release": "dotenv release-it --"

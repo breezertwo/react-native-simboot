@@ -2,3 +2,4 @@ node_modules
 ios
 
 .env
+.DS_Store
