@@ -6,30 +6,37 @@ const fs = require('fs');
 const { Select } = require('enquirer');
 
 const errorFn = (method, msg) => {
-  console.log(method);
-  console.log(msg);
+  console.error(`\x1b[31m${method} failed with:\n${msg}`);
   process.exit(1);
 }
 
 const runIOS = async () => {
-  const { stdout: deviceListRaw, error: listError } = await exec('xcrun simctl list --json devices available');
-  if (listError) return errorFn("[ERROR]: xcrun simctl list --json devices available", listError);
-  const deviceList = JSON.parse(deviceListRaw).devices
-  
-  const readableDeviceList = []
+  console.log('Running iOS...\nCollecting devices...');
 
-  for (const key in deviceList) {
-    if (key.indexOf("iOS") != -1) {
-        const subList = deviceList[key]
-        if (Array.isArray(subList) && subList.length > 0) {
-          for (const e of subList) {
-            readableDeviceList.push({ name: e.name, value: e.udid})
-          }
+  const readableDeviceList = []
+  try {
+    const { stdout } = await exec('xcrun simctl list --json devices available');
+    if (stdout.length > 0) {
+      const deviceList = JSON.parse(stdout).devices
+
+      for (const key in deviceList) {
+        if (key.indexOf("iOS") != -1) {
+            const subList = deviceList[key]
+            if (Array.isArray(subList) && subList.length > 0) {
+              for (const e of subList) {
+                readableDeviceList.push({ name: e.name, value: e.udid})
+              }
+            }
+      
         }
-  
+      }
+    } else {
+      throw new Error('No devices found');
     }
+  } catch (error) {
+    errorFn("[get device list]", error)
   }
-  
+
   const prompt = new Select({
     name: 'device',
     message: 'Pick a device to run the app:',
@@ -43,10 +50,19 @@ const runIOS = async () => {
     .map((item) => item.name)
     .filter(item => item.indexOf('xcodeproj') !== -1)[0]
 
-  const { stdout: projectRaw, error: projectError } = await exec(`xcodebuild -list -project ios/${xcodeproj} -json`);
-  if (projectError) return errorFn("[ERROR]: getting project info", projectError)
-  const configurations = JSON.parse(projectRaw).project.configurations
-  
+    let configurations = []
+    try {
+      const { stdout }  = await exec(`xcodebuild -list -project ios/${xcodeproj} -json`);
+      if (stdout.length > 0) {
+        configurations = JSON.parse(stdout).project.configurations
+      } else {
+        throw new Error("No configurations found")
+      }
+    } catch (error) {
+      errorFn("[get config list]", error)
+    }
+
+
   const promptConfig = new Select({
       name: 'config',
       message: 'Choose a config:',
@@ -54,18 +70,19 @@ const runIOS = async () => {
     });
   
   const udid = await prompt.run()
-  const configuration = await  promptConfig.run()
+  const configuration = await promptConfig.run()
 
   let timeElapsed = 0;
   const timer = setInterval(() => process.stdout.write(`ReactNative build is running... ${++timeElapsed} seconds elapsed\r`), 1000);
 
-  const { error } = await exec(`npx react-native run-ios --udid ${udid} --configuration "${configuration}"`);
-
-  clearInterval(timer);
-  if (error) return errorFn("[ERROR]: npx react-native run-ios", error);
-
-  console.log('\rReactNative build is running... done!');
-  process.exit(0);
+  try {
+    await exec(`npx react-native run-ios --udid ${udid} --configuration "${configuration}"`);
+    console.log('\rReactNative build is running... done!');
+    process.exit(0);
+  } catch (error) {
+    clearInterval(timer);
+    errorFn("[npx react-native run-ios]", error)
+  }
 }
 
 runIOS()
