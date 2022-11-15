@@ -11,7 +11,8 @@ const errorFn = (method, msg) => {
 }
 
 const runIOS = async () => {
-  console.log('Running iOS...\nCollecting devices...');
+  console.log('🍏 Running iOS script');
+  console.log('📱 Collecting infos...');
 
   const readableDeviceList = []
   try {
@@ -73,11 +74,11 @@ const runIOS = async () => {
   const configuration = await promptConfig.run()
 
   let timeElapsed = 0;
-  const timer = setInterval(() => process.stdout.write(`ReactNative build is running... ${++timeElapsed} seconds elapsed\r`), 1000);
+  const timer = setInterval(() => process.stdout.write(`🚧 ReactNative build is running... ${++timeElapsed} seconds elapsed\r`), 1000);
 
   try {
     await exec(`npx react-native run-ios --udid ${udid} --configuration "${configuration}" ${process.argv.slice(2).join(' ')}`);
-    console.log('\rReactNative build is running... done!');
+    process.stdout.write('🚀 ReactNative build is running... done!');
     process.exit(0);
   } catch (error) {
     clearInterval(timer);
@@ -86,4 +87,3 @@ const runIOS = async () => {
 }
 
 runIOS()
-
