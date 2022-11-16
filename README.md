@@ -31,6 +31,8 @@ start-ios
 
 in the root folder of your RN project.
 
+Any added arguments will be passed down & appended to the `npx reac-native` command.
+
 ### Prerequisites
 
 - iOS: XCode project file must be under `<root>/ios/name.xcodeproj`
