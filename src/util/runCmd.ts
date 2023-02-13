@@ -7,7 +7,10 @@ export const run = (commandLine: string) =>
     const child = spawn(command, args)
     const output = [] as string[]
 
-    child.stdout.on('data', chunk => output.push(chunk))
+    child.stdout.on('data', chunk => {
+      //console.log(chunk.toString())
+      return output.push(chunk)
+    })
 
     child.on('close', () => resolve(output.join('').trim()))
     child.on('error', error => reject(error))

@@ -1,29 +1,31 @@
-//(#!/usr/bin/env node)
-import { runIOS } from './ios/ios'
-
-import path from 'path'
+//import { parse } from 'xcparse'
 import fs from 'fs'
-import { parse } from 'xcparse'
-import { parseConfig } from './util/info'
+import { runAndroid } from './android/android'
+import { runIOS } from './ios/ios'
+import { parseConfig } from './util/parseConfig'
 
-export const simboot = async (config: any, args: any) => {
-  console.log('🏃 Running boot script')
+interface Args {
+  ios?: boolean
+  android?: boolean
+  iosXcodeprojPath?: string
+  androidBuildGradlePath?: string
+}
 
-  const info = parseConfig(config)
-
-  console.log('📱 Collecting infos... ☕️')
-  console.log('📱 Project root:', info.root)
+export const simboot = async (config: unknown, args: Args) => {
+  console.log('🏃 Running react-native-simboot')
+  const rnConfig = parseConfig(config)
 
   if (args.ios) {
     console.log('🍏 Running iOS script')
+    console.log('🍏 Using iOS project:', rnConfig.xcodeprojPath())
 
-    await runIOS(args.iosXcodeprojPath || info.xcodeprojPath())
-
-    //console.log('🕗 Reading pbxproj...')
-    //const pbxproj = parse(fs.readFileSync(info.pbxprojPath()).toString())
+    await runIOS(args.iosXcodeprojPath || rnConfig.xcodeprojPath())
   }
 
   if (args.android) {
-    console.log('📱 Android project:', info.buildGradlePath())
+    console.log('📱 Running android script')
+    console.log('📱 Using android project:', rnConfig.buildGradlePath())
+
+    await runAndroid(args.androidBuildGradlePath || rnConfig.buildGradlePath())
   }
 }

@@ -3,12 +3,18 @@
 import { run } from '../util/runCmd'
 import { errorFn } from '../util/errorFn'
 
-export const getDeviceList = async () => {
+interface Device {
+  name: string
+  udid: string
+}
+
+export const getDeviceList = async (): Promise<Device[]> => {
   const readableDeviceList = []
 
   try {
     const out = await run('xcrun xctrace list devices')
     const deviceList = out?.split('\n')
+
     for (const device of deviceList) {
       const contains = new RegExp('(iPhone|iPad|iPod)').test(device)
       const containsWatch = new RegExp('Watch').test(device)
@@ -26,6 +32,6 @@ export const getDeviceList = async () => {
 
     return readableDeviceList
   } catch (error) {
-    errorFn('[getDeviceList]', String(error))
+    throw new Error(String(error))
   }
 }

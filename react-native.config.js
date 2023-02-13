@@ -20,6 +20,10 @@ module.exports = {
           name: '--ios-xcodeproj-path [string]',
           description: 'Path to iOS Xcode project',
         },
+        {
+          name: '--android',
+          description: 'Run Android emulator',
+        },
       ],
     },
   ],
