@@ -1,8 +1,10 @@
 import prompts from 'prompts'
+import * as readline from 'readline'
+
 import { errorFn } from '../util/errorFn'
-import { run } from '../util/runCmd'
 import { getConfigurations } from './configuration'
 import { getDeviceList } from './deviceList'
+import { execShellCommand, writeDone, writeTimeElapsed } from '../util/util'
 
 export const runIOS = async (xcodeprojPath: string) => {
   console.log('👀 Collecting build information')
@@ -16,7 +18,7 @@ export const runIOS = async (xcodeprojPath: string) => {
     {
       type: 'select',
       name: 'config',
-      message: 'Pick configuration',
+      message: ' Pick configuration',
       instructions: false,
       choices: configs.map(config => {
         return {
@@ -28,7 +30,7 @@ export const runIOS = async (xcodeprojPath: string) => {
     {
       type: 'select',
       name: 'device',
-      message: 'Pick device',
+      message: ' Pick device',
       instructions: false,
       choices: readableDeviceList.map(device => {
         return {
@@ -40,16 +42,14 @@ export const runIOS = async (xcodeprojPath: string) => {
   ])
 
   let timeElapsed = 0
-  const timer = setInterval(
-    () => process.stdout.write(`🚧 ReactNative build is running... ${++timeElapsed} seconds elapsed\r`),
-    1000,
-  )
+  const timer = setInterval(() => writeTimeElapsed(++timeElapsed), 1000)
 
   try {
-    await run(
-      `npx react-native run-ios --udid ${device} --configuration ${config}`, //${process.argv.slice(2).join(' ')
+    await execShellCommand(
+      `npx react-native run-ios --udid ${device} --configuration ${config} ${process.argv.slice(2).join(' ')}`,
     )
     clearInterval(timer)
+    writeDone()
   } catch (error) {
     clearInterval(timer)
     errorFn('[npx react-native run-ios]', String(error))

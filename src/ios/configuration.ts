@@ -1,9 +1,9 @@
 // Description: Get configuration from XCode project
-import { run } from '../util/runCmd'
+import { execShellCommand } from '../util/util'
 
 export const getConfigurations = async (xcodeprojPath: string): Promise<string[]> => {
   try {
-    const out = await run(`xcodebuild -list -project ${xcodeprojPath} -json`)
+    const out = await execShellCommand(`xcodebuild -list -project ${xcodeprojPath} -json`)
     const xcodeConfig = JSON.parse(out)
 
     if (!xcodeConfig?.project?.configurations) {

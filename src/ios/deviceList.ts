@@ -1,8 +1,4 @@
-// Description: Get a list of all iOS devices and simulators connected to the machine
-
-import { run } from '../util/runCmd'
-import { errorFn } from '../util/errorFn'
-
+import { execShellCommand } from '../util/util'
 interface Device {
   name: string
   udid: string
@@ -12,7 +8,7 @@ export const getDeviceList = async (): Promise<Device[]> => {
   const readableDeviceList = []
 
   try {
-    const out = await run('xcrun xctrace list devices')
+    const out = await execShellCommand('xcrun xctrace list devices')
     const deviceList = out?.split('\n')
 
     for (const device of deviceList) {
