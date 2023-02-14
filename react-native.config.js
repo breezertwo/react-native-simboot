@@ -9,10 +9,6 @@ module.exports = {
       },
       options: [
         {
-          name: '--help',
-          description: 'Here should be help',
-        },
-        {
           name: '--ios',
           description: 'Run iOS simulator',
         },
@@ -23,6 +19,10 @@ module.exports = {
         {
           name: '--android',
           description: 'Run Android emulator',
+        },
+        {
+          name: '--android-gradle-path [string]',
+          description: 'Path to Android Gradle project',
         },
       ],
     },
