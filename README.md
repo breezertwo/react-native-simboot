@@ -29,8 +29,6 @@ npx react-native simboot --ios      # run ios build
 npx react-native simboot --android  # run android build (not ready yet)
 ```
 
-Any added arguments will be passed down & appended to the `npx react-native run-<os>` command.
-
 ### Additional flags
 
 #### Specify project path
@@ -79,7 +77,6 @@ If you have set the locations in `react-native.config.js`, they should be automa
 
 - add script for android (wip)
 - add config file to for
-  - settings
   - custom device order
   - custom script phase (e.g to set env)
 - add option to preselect iOS versions

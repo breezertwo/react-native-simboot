@@ -45,9 +45,7 @@ export const runIOS = async (xcodeprojPath: string) => {
   const timer = setInterval(() => writeTimeElapsed(++timeElapsed), 1000)
 
   try {
-    await execShellCommand(
-      `npx react-native run-ios --udid ${device} --configuration ${config} ${process.argv.slice(2).join(' ')}`,
-    )
+    await execShellCommand(`npx react-native run-ios --udid ${device} --configuration ${config}`)
     clearInterval(timer)
     writeDone()
   } catch (error) {
