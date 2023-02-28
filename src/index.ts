@@ -1,8 +1,6 @@
-//import { parse } from 'xcparse'
-import fs from 'fs'
 import { runAndroid } from './android/android'
 import { runIOS } from './ios/ios'
-import { parseConfig } from './util/parseConfig'
+import { parseReactNativeConfig, parseConfig } from './util'
 
 interface Args {
   ios?: boolean
@@ -13,19 +11,20 @@ interface Args {
 
 export const simboot = async (config: unknown, args: Args) => {
   console.log('🏃 Running react-native-simboot')
-  const rnConfig = parseConfig(config)
+  const rnConfig = parseReactNativeConfig(config)
+  const simbootConfig = parseConfig(rnConfig.root + '/simboot.config.js')
 
   if (args.ios) {
     console.log('🍏 Running iOS script')
     console.log('🍏 Using iOS project:', rnConfig.xcodeprojPath())
 
-    await runIOS(args.iosXcodeprojPath || rnConfig.xcodeprojPath())
+    await runIOS(args.iosXcodeprojPath || rnConfig.xcodeprojPath(), simbootConfig)
   }
 
   if (args.android) {
     console.log('🤖 Running android script')
     console.log('🤖 Using android build.gradle:', rnConfig.buildGradlePath())
 
-    await runAndroid(args.androidBuildGradlePath || rnConfig.buildGradlePath())
+    await runAndroid(args.androidBuildGradlePath || rnConfig.buildGradlePath(), simbootConfig)
   }
 }

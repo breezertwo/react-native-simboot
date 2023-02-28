@@ -1,6 +1,6 @@
 import path from 'path'
 
-export const parseConfig = (config: any) => ({
+export const parseReactNativeConfig = (config: any) => ({
   root: required(config.root, 'root'),
   xcodeprojPath: () => {
     const iosProject = required(config?.project?.ios, 'project.ios')

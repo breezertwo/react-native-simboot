@@ -1,5 +1,4 @@
-// Description: Get configuration from XCode project
-import { execShellCommand } from '../util/util'
+import { execShellCommand } from '../util'
 
 export const getConfigurations = async (xcodeprojPath: string): Promise<string[]> => {
   try {

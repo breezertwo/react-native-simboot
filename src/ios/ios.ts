@@ -1,11 +1,9 @@
 import prompts from 'prompts'
 
-import { errorFn } from '../util/errorFn'
 import { getConfigurations } from './configuration'
-import { getIosDeviceList } from '../util/deviceList'
-import { execShellCommand, writeDone, writeTimeElapsed } from '../util/util'
+import { getIosDeviceList, runRN, SimbootConfig } from '../util'
 
-export const runIOS = async (xcodeprojPath: string) => {
+export const runIOS = async (xcodeprojPath: string, customConfig: SimbootConfig) => {
   console.log('👀 Collecting build information')
   const configs = await getConfigurations(xcodeprojPath)
 
@@ -38,17 +36,17 @@ export const runIOS = async (xcodeprojPath: string) => {
     },
   ])
 
-  let timeElapsed = 0
-  const timer = setInterval(() => writeTimeElapsed(++timeElapsed), 1000)
-
-  try {
-    await execShellCommand(`npx react-native run-ios --udid ${device} --configuration ${config}`)
-    clearInterval(timer)
-    writeDone()
-  } catch (error) {
-    clearInterval(timer)
-    errorFn('[npx react-native run-ios]', String(error))
+  if (customConfig.customScriptPhase) {
+    console.log('🔨 Running custom script phase...')
+    await customConfig.customScriptPhase({
+      ios: {
+        configuration: config,
+        device,
+      },
+    })
   }
+
+  await runRN(`npx react-native run-ios --udid ${device} --configuration ${config}`)
 
   process.exit(0)
 }

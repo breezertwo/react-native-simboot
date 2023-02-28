@@ -1,8 +1,5 @@
 import prompts from 'prompts'
-
-import { getAndroidDeviceList } from '../util/deviceList'
-import { errorFn } from '../util/errorFn'
-import { execShellCommand, writeDone, writeTimeElapsed } from '../util/util'
+import { runRN, SimbootConfig } from '../util'
 
 var g2js = require('gradle-to-js/lib/parser')
 
@@ -26,7 +23,7 @@ interface AndroidConfig {
   }
 }
 
-export const runAndroid = async (buildGradlePath: string) => {
+export const runAndroid = async (buildGradlePath: string, customConfig: SimbootConfig) => {
   console.log('👀 Collecting build information...')
   await g2js.parseFile(buildGradlePath).then(async (representation: Partial<AndroidConfig>) => {
     const productFlavors = representation?.android?.productFlavors
@@ -95,21 +92,21 @@ export const runAndroid = async (buildGradlePath: string) => {
       applicationId = flavorSpecificApplicationId
     }
 
-    let timeElapsed = 0
-    const timer = setInterval(() => writeTimeElapsed(++timeElapsed), 1000)
-
-    try {
-      const cmd = `npx react-native run-android ${
-        buildType ? `--variant=${flavor ? flavor + buildType[0].toUpperCase() + buildType.slice(1) : buildType}` : ''
-      } ${applicationId ? `--appId=${applicationId}` : ''}`
-
-      await execShellCommand(cmd)
-      clearInterval(timer)
-      writeDone()
-    } catch (error) {
-      clearInterval(timer)
-      errorFn('[npx react-native run-android]', String(error))
+    if (customConfig.customScriptPhase) {
+      console.log('🔨 Running custom script phase...')
+      await customConfig.customScriptPhase({
+        android: {
+          buildType,
+          productFlavor: flavor,
+        },
+      })
     }
+
+    await runRN(
+      `npx react-native run-android ${
+        buildType ? `--variant=${flavor ? flavor + buildType[0].toUpperCase() + buildType.slice(1) : buildType}` : ''
+      } ${applicationId ? `--appId=${applicationId}` : ''}`,
+    )
 
     process.exit(0)
   })
