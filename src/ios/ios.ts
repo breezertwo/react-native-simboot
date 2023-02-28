@@ -1,18 +1,15 @@
 import prompts from 'prompts'
-import * as readline from 'readline'
 
 import { errorFn } from '../util/errorFn'
 import { getConfigurations } from './configuration'
-import { getDeviceList } from './deviceList'
+import { getIosDeviceList } from '../util/deviceList'
 import { execShellCommand, writeDone, writeTimeElapsed } from '../util/util'
 
 export const runIOS = async (xcodeprojPath: string) => {
   console.log('👀 Collecting build information')
   const configs = await getConfigurations(xcodeprojPath)
-  //console.log('Configurations found:', configs)
 
-  const readableDeviceList = await getDeviceList()
-  //console.log('Devices found:', readableDeviceList)
+  const readableDeviceList = await getIosDeviceList()
 
   const { config, device } = await prompts([
     {

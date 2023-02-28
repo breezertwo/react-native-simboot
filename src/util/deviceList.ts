@@ -1,10 +1,10 @@
-import { execShellCommand } from '../util/util'
+import { execShellCommand } from './util'
 interface Device {
   name: string
   udid: string
 }
 
-export const getDeviceList = async (): Promise<Device[]> => {
+export const getIosDeviceList = async (): Promise<Device[]> => {
   const readableDeviceList = []
 
   try {
@@ -27,6 +27,18 @@ export const getDeviceList = async (): Promise<Device[]> => {
     }
 
     return readableDeviceList
+  } catch (error) {
+    throw new Error(String(error))
+  }
+}
+
+export const getAndroidDeviceList = async (): Promise<string[]> => {
+  try {
+    //const emulators = await execShellCommand('emulator -list-avds')
+
+    const [, ...deviceList] = (await execShellCommand('adb devices')).split('\n')
+    const availableDevices = deviceList.filter(line => line.includes('device')).map(line => line.split('\t')[0])
+    return availableDevices
   } catch (error) {
     throw new Error(String(error))
   }

@@ -23,8 +23,8 @@ export const simboot = async (config: unknown, args: Args) => {
   }
 
   if (args.android) {
-    console.log('📱 Running android script')
-    console.log('📱 Using android project:', rnConfig.buildGradlePath())
+    console.log('🤖 Running android script')
+    console.log('🤖 Using android build.gradle:', rnConfig.buildGradlePath())
 
     await runAndroid(args.androidBuildGradlePath || rnConfig.buildGradlePath())
   }
