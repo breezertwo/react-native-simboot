@@ -1,12 +1,15 @@
-## react-native-simboot
+# react-native-simboot
 
-Tired from searching for udids for a new simulator? A colleague wants to see the prototype on his own phone just "real quick"?
+Tired from searching an UUID or deviceID after adding a new simulator? A colleague wants to see the prototype on his own phone just "real quick"? Confused about the different build configurations in your project?
 
-This script will speed up deploying your ReactNative app to a simulator or a device.
-It searches for any available simulator or device, without having to look for UDID or device names by yourself.
-The script will also pick up any configured build configurations for your project and let's you choose what you want to build.
+This script will speed up deploying your ReactNative app to a simulator or a device for testing.
 
-### Install
+It automatically searches for any available simulator or device. (iOS only at the moment)
+The script will pick up any available build configuration from Xcode (iOS) or the productFlavor and buildType variants from build.gradle (Android) and let you choose which one you want to run your app with.
+
+After the prompt, the script will run the `react-native run-<os>` command and start the app on the selected device.
+
+## Install
 
 yarn:
 
@@ -20,14 +23,21 @@ npm:
 npm i -D react-native-simboot
 ```
 
-### Use
+## Use
 
 Simply run in the root folder of your RN project:
 
 ```
 npx react-native simboot --ios      # run ios build
-npx react-native simboot --android  # run android build (not ready yet)
+npx react-native simboot --android  # run android build
 ```
+
+### Prerequisites
+
+If you are developing react-native apps on your machine, you should have the following tools already installed:
+
+- iOS: [XCode Command Line Tools](https://developer.apple.com/library/archive/technotes/tn2339/_index.html) (xcodebuild, xcrun)
+- Android: [Android Debug Bridge](https://developer.android.com/studio/command-line/adb) (adb)
 
 ### Additional flags
 
@@ -39,19 +49,57 @@ If you have set the locations in `react-native.config.js`, they should be automa
 
 ```
 --ios-xcodeproj-path [string]       # specify custom xcode project path
---android-gradle-path [string]      # specify custom build.gradle path (not ready yet)
+--android-gradle-path [string]      # specify custom build.gradle path
 ```
 
-### Prerequisites
+#### Flags set by script for run-android and run-ios and how they are used
 
-- iOS: XCode Command Line Tools
+| Flag            | Info                                                                                           | OS      |
+| --------------- | ---------------------------------------------------------------------------------------------- | ------- |
+| --uuid          | From selection                                                                                 | iOS     |
+| --configuration | From selection                                                                                 | iOS     |
+| --variant       | Composed from productFlavor & buildType selection                                              | android |
+| --appId         | Taken from defaultConfig in build.gradle. Overwritten if value set in choosen productFlavor    | android |
+| --deviceId      | Currently not enabled (see [Issue](https://github.com/react-native-community/cli/issues/1754)) | android |
 
-### Example
+## Config file
+
+You can configure the script by adding a `simboot.config.js` file to the root of your project.
+
+| Value             | Type                             | Explanation                                                                                                                    |
+| ----------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| verbose           | boolean                          | get detailed output                                                                                                            |
+| dryRun            | boolean                          | don't run any build after selection                                                                                            |
+| customScriptPhase | (config: SelectedConfig) => void | run custom script after selection but before react-native build (e.g to set env). `config` contains the selected configuration |
+
+Depending on the operating system selected, the `customScriptPhase` function will be called with `config` containing the following values:
+
+```ts
+interface SelectedConfig {
+  ios: {
+    configuration?: string
+    device?: {
+      name: string
+      udid: string
+    }
+  }
+}
+```
+
+```ts
+interface SelectedConfig {
+  android: {
+    buildType?: string
+    productFlavor?: string
+  }
+}
+```
+
+## Example (iOS)
 
 ```
 🏃 Running react-native-simboot
 🍏 Running iOS script
-🍏 Using iOS project: /<path to project root>/ios/app.xcodeproj
 👀 Collecting build information
 
 ✔ Pick configuration:
@@ -75,8 +123,7 @@ If you have set the locations in `react-native.config.js`, they should be automa
 
 #### Roadmap
 
-- add script for android (wip)
-- add config file to for
-  - custom device order
-  - custom script phase (e.g to set env)
-- add option to preselect iOS versions
+- add config option for
+  - preselect device types
+  - preselect iOS versions
+- enable android device selection ([issue](https://github.com/react-native-community/cli/issues/1754))
