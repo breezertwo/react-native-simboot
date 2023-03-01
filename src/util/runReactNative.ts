@@ -1,5 +1,5 @@
 import { errorFn } from './errorFn'
-import { execShellCommand, writeDone, writeTimeElapsed } from '../util/util'
+import { execShellCommand, writeDone, writeTimeElapsed } from '../util'
 
 export const runRN = async (cmd: string) => {
   let timeElapsed = 0
@@ -12,6 +12,6 @@ export const runRN = async (cmd: string) => {
     return
   } catch (error) {
     clearInterval(timer)
-    errorFn('[npx react-native run-android]', String(error))
+    errorFn('[run react-native command]', String(error))
   }
 }

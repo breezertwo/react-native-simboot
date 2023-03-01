@@ -1,4 +1,4 @@
-import { execShellCommand } from '../util'
+import { errorFn, execShellCommand } from '../util'
 
 export const getConfigurations = async (xcodeprojPath: string): Promise<string[]> => {
   try {
@@ -6,15 +6,15 @@ export const getConfigurations = async (xcodeprojPath: string): Promise<string[]
     const xcodeConfig = JSON.parse(out)
 
     if (!xcodeConfig?.project?.configurations) {
-      throw new Error('No configurations found in Xcode project')
+      console.log('🚨 No configurations found - continuing without')
+      return []
     }
 
     return xcodeConfig.project.configurations
   } catch (error) {
-    const errorMessage = `
-      Couldn't get configurations from Xcode project.
-      Make sure you are in the root of your project and ios folder exists.
-      If you are using a custom path, make sure its correct.`
-    throw new Error(errorMessage)
+    return errorFn(
+      '🚨 [getXCodeConfigurations]',
+      'Failed to get configurations from Xcode project.\nCheck if you have XCode CLI tools installed. If you do, check if the project path is correct.',
+    )
   }
 }

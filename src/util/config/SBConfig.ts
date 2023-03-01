@@ -7,18 +7,21 @@ interface Results {
   }
   ios?: {
     configuration?: string
-    device?: string
+    device?: {
+      name: string
+      udid: string
+    }
   }
 }
 
 export interface SimbootConfig {
   verbose?: boolean
+  dryRun?: boolean
   customScriptPhase?: (selction: Results) => void
 }
 
 export const parseConfig = (path: any): SimbootConfig => {
   if (!fs.existsSync(path)) return {}
-  console.log('📄 Found simboot.config.js')
 
   const config = require(path)
 
@@ -32,8 +35,11 @@ export const parseConfig = (path: any): SimbootConfig => {
     process.exit(1)
   }
 
+  if (config.verbose) console.log('📄 Successfully parsed simboot.config.js')
+
   return {
+    verbose: config.verbose || false,
+    dryRun: config.dryRun || false,
     customScriptPhase: config.customScriptPhase,
-    verbose: config.verbose,
   }
 }

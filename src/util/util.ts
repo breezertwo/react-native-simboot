@@ -17,7 +17,7 @@ export const execShellCommand = (cmd: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     exec(cmd, (error: any, stdout: string, stderr: string) => {
       if (error) {
-        console.warn(error)
+        console.error(error)
         reject(error)
       }
 

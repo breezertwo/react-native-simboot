@@ -1,3 +1,4 @@
+import { errorFn } from './errorFn'
 import { execShellCommand } from './util'
 interface Device {
   name: string
@@ -26,16 +27,21 @@ export const getIosDeviceList = async (): Promise<Device[]> => {
       }
     }
 
+    if (readableDeviceList.length === 0) {
+      return errorFn('🚨 No devices found - continuing without')
+    }
+
     return readableDeviceList
   } catch (error) {
-    throw new Error(String(error))
+    return errorFn('🚨 [getIosDeviceList]', 'Failed to get device list.\nCheck if you have XCode CLI tools installed.')
   }
 }
 
+// Currently not possible to run with deviceId parameter set
+// https://github.com/react-native-community/cli/issues/1754
 export const getAndroidDeviceList = async (): Promise<string[]> => {
   try {
     //const emulators = await execShellCommand('emulator -list-avds')
-
     const [, ...deviceList] = (await execShellCommand('adb devices')).split('\n')
     const availableDevices = deviceList.filter(line => line.includes('device')).map(line => line.split('\t')[0])
     return availableDevices
