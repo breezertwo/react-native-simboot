@@ -37,11 +37,8 @@ export const getIosDeviceList = async (): Promise<Device[]> => {
   }
 }
 
-// Currently not possible to run with deviceId parameter set
-// https://github.com/react-native-community/cli/issues/1754
 export const getAndroidDeviceList = async (): Promise<string[]> => {
   try {
-    //const emulators = await execShellCommand('emulator -list-avds')
     const [, ...deviceList] = (await execShellCommand('adb devices')).split('\n')
     const availableDevices = deviceList.filter(line => line.includes('device')).map(line => line.split('\t')[0])
     return availableDevices

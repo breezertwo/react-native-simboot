@@ -54,23 +54,23 @@ If you have set the locations in `react-native.config.js`, they should be automa
 
 #### Flags set by script for run-android and run-ios and how they are used
 
-| Flag            | Info                                                                                           | OS      |
-| --------------- | ---------------------------------------------------------------------------------------------- | ------- |
-| --uuid          | From selection                                                                                 | iOS     |
-| --configuration | From selection                                                                                 | iOS     |
-| --variant       | Composed from productFlavor & buildType selection                                              | android |
-| --appId         | Taken from defaultConfig in build.gradle. Overwritten if value set in choosen productFlavor    | android |
-| --deviceId      | Currently not enabled (see [Issue](https://github.com/react-native-community/cli/issues/1754)) | android |
+| <div style="width:120px">Flag</div> | Info                                                                                                                                                                                                                                                  | OS      |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| --uuid                              | From user selection                                                                                                                                                                                                                                   | iOS     |
+| --configuration                     | From user selection                                                                                                                                                                                                                                   | iOS     |
+| --variant                           | Composed from productFlavor & buildType selection                                                                                                                                                                                                     | android |
+| --appId                             | Taken from defaultConfig in build.gradle. Overwritten if value set in choosen productFlavor                                                                                                                                                           | android |
+| --deviceId                          | From user selection </br>⚠️ only supported with RN 0.72.0-rc.0 or react-native-cli 11.0.0 or higher (see [Issue](https://github.com/react-native-community/cli/issues/1754)). Device selection for android not availabe if lower cli version detected | android |
 
 ## Config file
 
 You can configure the script by adding a `simboot.config.js` file to the root of your project.
 
-| Value             | Type                             | Explanation                                                                                                                    |
-| ----------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| verbose           | boolean                          | get detailed output                                                                                                            |
-| dryRun            | boolean                          | don't run any build after selection                                                                                            |
-| customScriptPhase | (config: SelectedConfig) => void | run custom script after selection but before react-native build (e.g to set env). `config` contains the selected configuration |
+| Value             | <div style="width:240px">Type</div> | Explanation                                                                                                                    |
+| ----------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| verbose           | boolean                             | get detailed output                                                                                                            |
+| dryRun            | boolean                             | don't run any build after selection                                                                                            |
+| customScriptPhase | (config: SelectedConfig) => void    | run custom script after selection but before react-native build (e.g to set env). `config` contains the selected configuration |
 
 Depending on the operating system selected, the `customScriptPhase` function will be called with `config` containing the following values:
 
@@ -126,4 +126,3 @@ interface SelectedConfig {
 - add config option for
   - preselect device types
   - preselect iOS versions
-- enable android device selection ([issue](https://github.com/react-native-community/cli/issues/1754))

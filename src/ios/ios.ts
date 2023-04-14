@@ -1,8 +1,8 @@
-import prompts from 'prompts'
 import { platform } from 'node:process'
 
 import { getConfigurations } from './configuration'
 import { getIosDeviceList, runRN, SimbootConfig } from '../util'
+import inquirer from 'inquirer'
 
 export const runIOS = async (xcodeprojPath: string, customConfig: SimbootConfig) => {
   console.log('👀 Collecting build information')
@@ -20,27 +20,28 @@ export const runIOS = async (xcodeprojPath: string, customConfig: SimbootConfig)
     console.log('🚨 Script will run "npx react-native run-ios" without any additional parameters')
   }
 
-  const { config, uuid } = await prompts([
+  const { config } = await inquirer.prompt<{ config: string }>([
     {
-      type: 'select',
+      type: 'list',
       name: 'config',
       message: ' Pick configuration',
-      instructions: false,
       choices: configs.map(config => {
         return {
-          title: config,
+          name: config,
           value: config,
         } as const
       }),
     },
+  ])
+
+  const { uuid } = await inquirer.prompt<{ uuid: string }>([
     {
-      type: 'select',
+      type: 'list',
       name: 'uuid',
       message: ' Pick device',
-      instructions: false,
       choices: readableDeviceList.map(device => {
         return {
-          title: device.name,
+          name: device.name,
           value: device.udid,
         } as const
       }),

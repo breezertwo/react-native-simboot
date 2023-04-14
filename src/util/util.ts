@@ -25,3 +25,12 @@ export const execShellCommand = (cmd: string): Promise<string> => {
     })
   })
 }
+
+/**
+ * Compares two version strings (semver)
+ * @param a version string a
+ * @param b version string b
+ * @returns 0: version strings are equal; 1: version a is greater than b; -1: version b is greater than a
+ */
+export const compareVersions = (a: string, b: string) =>
+  a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })

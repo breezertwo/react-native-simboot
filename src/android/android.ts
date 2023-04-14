@@ -1,60 +1,83 @@
-import prompts from 'prompts'
-import { runRN, SimbootConfig } from '../util'
+import { compareVersions, execShellCommand, getAndroidDeviceList, runRN, SimbootConfig } from '../util'
 import { parseBuildGradle } from './parseBuildGradle'
+import inquirer from 'inquirer'
 
 export const runAndroid = async (buildGradlePath: string, customConfig: SimbootConfig) => {
   console.log('👀 Collecting build information...')
   const { buildTypes, productFlavors, applicationId, gradleFile } = await parseBuildGradle(buildGradlePath)
+  const readableDeviceList = await getAndroidDeviceList()
 
-  const { buildType, flavor } = await prompts([
+  const { buildType } = await inquirer.prompt<{ buildType: string }>([
     {
-      type: 'select',
+      type: 'list',
       name: 'buildType',
       message: ' Pick build type',
-      instructions: false,
       choices: buildTypes
         ? Object.keys(buildTypes).map(type => {
             return {
-              title: type,
+              name: type,
               value: type,
             } as const
           })
         : [],
     },
-    {
-      type: 'select',
-      name: 'flavor',
-      message: ' Pick product flavor',
-      instructions: false,
-      choices: productFlavors
-        ? Object.keys(productFlavors).map(flavor => {
-            return {
-              title: flavor,
-              value: flavor,
-            } as const
-          })
-        : [],
-    },
-    // {
-    //   type: 'select',
-    //   name: 'device',
-    //   message: ' Pick device',
-    //   instructions: false,
-    //   choices: readableDeviceList.map(device => {
-    //     return {
-    //       title: device,
-    //       value: device,
-    //     } as const
-    //   }),
-    // },
   ])
 
-  const flavorSpecificApplicationId = gradleFile.android.productFlavors?.[flavor]?.applicationId
+  let flavor: string | undefined
+  if (productFlavors && Object.keys(productFlavors).length !== 0) {
+    await inquirer
+      .prompt<{ flavor: string }>([
+        {
+          type: 'list',
+          name: 'flavor',
+          message: ' Pick product flavor',
+          choices: productFlavors
+            ? Object.keys(productFlavors).map(flavor => {
+                return {
+                  name: flavor,
+                  value: flavor,
+                } as const
+              })
+            : [],
+        },
+      ])
+      .then(answer => {
+        flavor = answer.flavor
+      })
+  }
+
+  // https://github.com/react-native-community/cli/issues/1754
+  const rnCliVersion = await execShellCommand(`npx react-native -v`)
+
+  let device: string | undefined
+  if (readableDeviceList.length !== 0 && compareVersions(rnCliVersion.replace(/ +/g, ''), '11.0.0') !== -1) {
+    await inquirer
+      .prompt<{ choice: string }>([
+        {
+          type: 'list',
+          name: 'choice',
+          message: ' Pick device',
+          choices: readableDeviceList.map(device => {
+            return {
+              name: device,
+              value: device,
+            } as const
+          }),
+        },
+      ])
+      .then(answer => {
+        device = answer.choice
+      })
+  }
+
+  const flavorSpecificApplicationId = flavor ? gradleFile.android.productFlavors?.[flavor]?.applicationId : undefined
 
   // The actual command to run
   const command = `npx react-native run-android ${
     buildType ? `--variant=${flavor ? flavor + buildType[0].toUpperCase() + buildType.slice(1) : buildType}` : ''
-  } ${applicationId ? `--appId=${flavorSpecificApplicationId || applicationId}` : ''}`
+  } ${applicationId ? `--appId=${flavorSpecificApplicationId || applicationId}` : ''} ${
+    device ? `--deviceId=${device}` : ''
+  }`
 
   if (customConfig.verbose) {
     console.log('🤖 Using build.gradle:', buildGradlePath)
